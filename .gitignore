@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+RequetDataSetNew
+
+LabelDataSet
+
+cols.txt
+
+.virtual_documents
+
+.idea
+
