@@ -1,12 +1,12 @@
 # 运行方法
-1. 将 ReaquestTestSet10 文件夹放入程序目录
-2. 运行 preprocess.py
+1. 将 RequetDataSetNew 文件夹放入程序目录
+2. 运行 MergeFileProcess.py
    ```
-   python -u "./preprocess.py"
+   python -u "./MergeFileProcess.py"
    ```
-3. 运行 label.py
+3. 运行 GenerateLabel.py
    ```
-   python -u "./label.py"
+   python -u "./GenerateLabel.py"
    ```
 4. 运行 maketraindata.py
    ```
