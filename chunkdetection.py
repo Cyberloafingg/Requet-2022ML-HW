@@ -1,13 +1,14 @@
 from scapy.all import *
 from math import *
 import pandas as pd
-from tqdm import tqdm
+#from tqdm import tqdm
+import scapy.layers as layers
 
 GET_THRESH = 300  # bytes
 DOWN_THRESH = 300  # bytes
 VIDEO_CHUNK_GETSIZE = 700  # bytes
 AUDIO_CHUNK_GETSIZE = 600  # bytes
-
+IP = layers.inet.IP
 
 class Chunk():
     def __init__(self, start_time=0, server_ip='', ttfb=0, download_time=0, slack_time=0, get_size=0, chunk_size=0, type="", protocol=""):
