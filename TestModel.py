@@ -35,6 +35,7 @@ rec_all=[]
 bfw_pre,bfw_rec = np.zeros((2,)) ,np.zeros((2,))
 bfs_pre,bfs_rec = np.zeros((4,)) ,np.zeros((4,))
 reso_pre,reso_rec = np.zeros((6,)) ,np.zeros((6,))
+print('Testing')
 for i in range(4):
     acc_item = []
     for j in range(-3,0):
@@ -62,14 +63,14 @@ for i in range(4):
             else:
                 reso_pre += precision
                 reso_rec += recall
-        print(f'A{i}, A{(i+1)%4}, A{(i+2)%4} as train data, A{(i+3)%4} as test data, label = {label_list[j]}, accuracy = {accuracy}')
+        print(f'\rA{i}, A{(i+1)%4}, A{(i+2)%4} as train data, A{(i+3)%4} as test data, label = {label_list[j]}, accuracy = {accuracy}',end='')
         acc_item.append(accuracy)
     acc_all.append(acc_item)
 acc_mat = np.array(acc_all)
 paper_accuracy = np.array([0.92,0.842,0.669])
 my_accuracy = np.average(acc_mat,axis=0)
 error = (paper_accuracy - my_accuracy)/paper_accuracy
-print('--------------|---------------|---------------|-----------|')
+print('\n--------------|---------------|---------------|-----------|')
 print(f'Type\t\t  |BufferWarning  |BufferStatus   |Resolution |')
 print('--------------|---------------|---------------|-----------|')
 print(f'Paper Accuracy|{round(paper_accuracy[0],3)}\t\t\t  |{round(paper_accuracy[1],3)}\t\t  |{round(paper_accuracy[2],3)}\t  |')
