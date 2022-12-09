@@ -86,15 +86,9 @@ def isUplink(src):
 
 
 def ChunkDetection(filename):
-    # 解析pcap文件
-    # print("Reading pcap file...")
-
     # 读入pcap文件
     f = open(filename, 'rb')
     pcap = dpkt.pcap.Reader(f)
-
-    # meta_time = 0
-    ii = 0
     # pcap是Reader类，无法切片，目前先这样写
     # for ts, buf in pcap:
     #     ii += 1
@@ -259,7 +253,6 @@ def generate_train_data(dataset):
     train_data_resolution = []
     dataset_folder = f'LabelDataSet/{dataset}/'
     files = glob.glob(dataset_folder + '*_label.csv')
-    # cnt=0
     for i in tqdm(range((len(files))), desc=f'Generating {dataset} training data', ncols=80, colour='blue'):
         file_name = files[i]
         file = pd.read_csv(file_name).to_numpy()
@@ -274,7 +267,6 @@ def generate_train_data(dataset):
             feature = getFeature(file[i, 0], output, fe_time)
             if not feature:
                 continue
-            # feature.append(file_name + "-" + str(file.iloc[i, 0]))
             feature.extend(file[i, 1:])
             train_data_buffer.append(feature)
             if feature[121] == 0:
@@ -309,4 +301,5 @@ if __name__ == '__main__':
     with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
         executor.map(generate_train_data, Dataset_List)
     ending = time.time()
+    print("***** Generate TrainData Succeed! ******")
     print(f'Use {ending - starting}s')

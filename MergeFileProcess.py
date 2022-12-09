@@ -8,18 +8,18 @@ Dataset_List = ['A0','A1','A2','A3']
 Datasets_Folder = "RequetDataSetNew"
 Label_Folder = "LabelDataSet"
 COLS = ['RelativeTime', 'PacketsSent', 'PacketsReceived', 'BytesSent', 'BytesReceived']
-Network_Info_Num = 26 # 一共26个NetworkINFO
+NET_INFO_NUM = 26 # 一共26个NetworkINFO
 # 已知的文件数量，最为后续处理txt的验证
-Data_Num_In_Folder = {
+DATA_NUM_IN_FOLDER = {
     'A0':95,
     'A1':130,
     'A2':91,
     'A3':119
 }
 
-
+# 构造MergeFile的目录
 def construct_columns():
-    for i in range(0, Network_Info_Num):
+    for i in range(0, NET_INFO_NUM):
         ss = str(i)
         Network_Info = ['IPSrc' + ss,
                         'IPDst' + ss,
@@ -41,7 +41,7 @@ def construct_columns():
         print(f"Succeed to construct COL:{len(COLS)}")
 
 
-
+# 清理工作目录
 def clean_work_dir():
     for datasets in Dataset_List:
         dataset_folder = f'{Datasets_Folder}/{datasets}/MERGED_FILES/'
@@ -73,8 +73,8 @@ def generate_label_file():
     for datasets in Dataset_List:
         dataset_folder = f'{Datasets_Folder}/{datasets}/MERGED_FILES/'
         files = glob.glob(dataset_folder + '*_*_merged.txt')
-        if len(files) != Data_Num_In_Folder[datasets]:
-            raise Exception(f"Error File Num,Please Check Folder :{dataset_folder}")
+        if len(files) != DATA_NUM_IN_FOLDER[datasets]:
+            raise Exception(f"Error File Num,Please Check Folder :{dataset_folder},or you should remove RequetDataSetNew Folder into root dir")
         else:
             print(f"Folder : {dataset_folder} , File Num : {len(files)}")
         os.system(f"md {Label_Folder}\\{datasets}")
@@ -84,14 +84,15 @@ def generate_label_file():
             combination.append((i,datasets))
         with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             executor.map(conactenat, combination)
-    print("******Concatenated All Folder!*******")
+    print("****** Mergefile to csv Succeed! *******")
 
 
 if __name__ == '__main__':
     #### 生成label_file
+    print("*************** Beginning ***************")
+    start = time.time()
     clean_work_dir()
     construct_columns()
-    start = time.time()
     generate_label_file()
     end = time.time()
-    print(f"Use {end - start}s")
+    print(f"Mergefile Process Use {end - start}s")

@@ -1,4 +1,3 @@
-# Byte-compiled / optimized / DLL files
 __pycache__/
 
 RequetDataSetNew
@@ -14,3 +13,5 @@ cols.txt
 ChunkDetection.ipynb
 
 TrainData
+
+rxy.ipynb
