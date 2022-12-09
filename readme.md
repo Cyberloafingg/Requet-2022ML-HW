@@ -10,9 +10,10 @@
    ```
 4. 运行 maketraindata.py
    ```
-   python -u "./maketraindata.py"
+   python -u "./GenerateTrainData"
    ```
-5. 运行 randomforest_test.py
+5. 目前测试在RF_Test.ipynb中
+6. ToDo:运行 randomforest_test.py
    ```
    python -u "./randomforest_test.py"
    ```
