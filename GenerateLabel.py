@@ -5,26 +5,24 @@ import numpy as np
 import concurrent.futures
 
 Dataset_List = ['A0','A1','A2','A3']
-# Dataset_List = ['A0']
 Datasets_Folder = "RequetDataSetNew"
 Label_Folder = "LabelDataSet"
-### 用来记录
-Num = [0 for _ in range(0, 4)]
-Sum = 0
 
-MinTime_stall = 10
-Thr_ss = 15
+
+MIN_TIME_STALL = 10
+THR_SS = 15
 Resolution_List = ['q144p', 'q240p', 'q360p', 'q480p', 'q720p', 'q1080p', 'q1440p', 'q2160p']
 Status_List = ['Stall', 'Steady State', 'Buffer Decay', 'Buffer Increase']
 
-Stall_Threshold = 0.08
-Delta = 0.0001
-Epsilon = 0.15
+STALL_THRESHOLD = 0.08
+DELTA = 0.0001
+EPSILON = 0.15
 T_smooth = 15
 T_slope = 5
-Buff_ss = 10
-BuffWarningThresh = 20
-
+BUFF_SS = 10
+BUFF_WARNING_THEESH = 20
+Num = [0 for _ in range(0, 4)]
+Sum = 0
 def smooth_status(status_, m_t):
     status_smooth = status_.copy()
     now_index = 0
@@ -32,7 +30,7 @@ def smooth_status(status_, m_t):
     while now_index < len(status_smooth):
         if status_smooth[now_index] == 0:
             last_index = now_index
-            end = min(len(status_smooth), now_index + MinTime_stall * 10 + 1)
+            end = min(len(status_smooth), now_index + MIN_TIME_STALL * 10 + 1)
             for j in range(now_index + 1, end):
                 if status_smooth[j] == 0:
                     last_index = j
@@ -49,7 +47,7 @@ def smooth_status(status_, m_t):
     while now_index < len(status_smooth):
         if status_smooth[now_index] == 1:
             last_index = now_index
-            end = min(len(status_smooth), now_index + MinTime_stall * 10 + 1)
+            end = min(len(status_smooth), now_index + MIN_TIME_STALL * 10 + 1)
             for j in range(now_index + 1, end):
                 if status_smooth[j] == 1:
                     last_index = j
@@ -70,7 +68,7 @@ def smooth_status(status_, m_t):
                 num[now_index] = num[now_index - 1] + 1
             else:
                 num[now_index] = 1
-                if num[now_index - 1] <= Thr_ss * 10:
+                if num[now_index - 1] <= THR_SS * 10:
                     for j in range(now_index - 1, -1, -1):
                         if status_smooth[j] == 1:
                             status_smooth[j] = 3 if m_t[j] >= 0 else 2
@@ -103,8 +101,8 @@ def cal_label(file):
     for i in numpy_RelativeTime:
         hat_b[round(i * 10) / 10] = np.median(
                                     numpy_BufferHealth
-                                        [(numpy_RelativeTime >= (i - T_smooth - Delta))
-                                        & (numpy_RelativeTime <= (i + T_smooth + Delta))]
+                                        [(numpy_RelativeTime >= (i - T_smooth - DELTA))
+                                         & (numpy_RelativeTime <= (i + T_smooth + DELTA))]
                                 )
     maxTime = round(numpy_RelativeTime.max() * 10) / 10
     for i in range(len(numpy_RelativeTime)):
@@ -132,14 +130,14 @@ def cal_label(file):
         m.append(mt)
         b_t = numpy_BufferHealth[i]
         # BuffWarningThresh 以20作为分类标准 第71:6页
-        if b_t < BuffWarningThresh:
+        if b_t < BUFF_WARNING_THEESH:
             new_row.append(1)
             # np.append(new_row,1)
         else:
             new_row.append(0)
-        if b_t < Stall_Threshold:
+        if b_t < STALL_THRESHOLD:
             state = 0
-        elif -Epsilon <= mt <= Epsilon and b_t > Buff_ss:
+        elif -EPSILON <= mt <= EPSILON and b_t > BUFF_SS:
             state = 1
         elif mt < 0:
             state = 2

@@ -231,19 +231,20 @@ def getFeature(epoch_msec, cm, first_end_time):
                 last_chunk = cm[is_out_border]
                 flag1 = False
             total_number_of_chunks_v = cm[(cm[:, type] == 0) & is_out_border].shape[0]
+
             if total_number_of_chunks_v == 0:
                 avg_chunk_size_v = 0
             else:
-                avg_chunk_size_v = cm[:, chunk_size][
-                    (cm[:, type] == 0) & (cm[:, end_time] > t - period) & (cm[:, start_time] < t)].mean()
+                avg_chunk_size_v = cm[:, chunk_size][(cm[:, type] == 0) & is_out_border].mean()
+
             download_time_v = cm[:, download_time][(cm[:, type] == 0) & is_out_border].sum()
             total_number_of_chunks_a = cm[(cm[:, type] == 1) & is_out_border].shape[0]
             if total_number_of_chunks_a == 0:
                 avg_chunk_size_a = 0
             else:
-                avg_chunk_size_a = cm[:, chunk_size][
-                    (cm[:, type] == 1) & (cm[:, end_time] > t - period) & (cm[:, start_time] < t)].mean()
+                avg_chunk_size_a = cm[:, chunk_size][(cm[:, type] == 1) & is_out_border].mean()
             download_time_a = cm[:, download_time][(cm[:, type] == 1) & is_out_border].sum()
+
         s += [total_number_of_chunks_v, avg_chunk_size_v, download_time_v,
               total_number_of_chunks_a, avg_chunk_size_a, download_time_a]
     if not flag1:
