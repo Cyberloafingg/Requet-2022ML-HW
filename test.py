@@ -1,33 +1,42 @@
-import math
-import datetime
-import multiprocessing as mp
+import warnings
+import numpy as np
 
+warnings.filterwarnings("ignore")
+import pandas as pd
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
 
-def train_on_parameter(name, param):
-    result = 0
-    for num in param:
-        result += math.sqrt(num * math.tanh(num) / math.log2(num) / math.log10(num))
-    return {name: result}
+Tree_num = 200
+train_file_nameA0 = 'TrainData/train_A0_resolution.csv'
+train_file_nameA1 = 'TrainData/train_A1_resolution.csv'
+train_file_nameA2 = 'TrainData/train_A2_resolution.csv'
+train_file_nameA3 = 'TrainData/train_A3_resolution.csv'
 
+A0 = pd.read_csv(train_file_nameA0)
+A1 = pd.read_csv(train_file_nameA1)
+A2 = pd.read_csv(train_file_nameA2)
+A3 = pd.read_csv(train_file_nameA3)
+Dataset_List = [A0, A1, A2, A3]
+name_list = ["Status", "BuffWarning", "Resolution"]
+acc_all = []
+for i in range(4):
+    acc_item = []
+    for j in range(-1, 0):
+        train_data = Dataset_List[i].append(Dataset_List[(i + 1) % 4]).append(Dataset_List[(i + 2) % 4])
+        test_data = Dataset_List[(i + 3) % 4]
 
-if __name__ == '__main__':
+        x_train = pd.concat([train_data.iloc[:, :-10], train_data.iloc[:, 125:127]], axis=1)
+        y_train = train_data.iloc[:, j]
 
-    start_t = datetime.datetime.now()
-
-    num_cores = int(mp.cpu_count())
-    print("本地计算机有: " + str(num_cores) + " 核心")
-    pool = mp.Pool(num_cores)
-    param_dict = {'task1': list(range(10, 30000000)),
-                  'task2': list(range(30000000, 60000000)),
-                  'task3': list(range(60000000, 90000000)),
-                  'task4': list(range(90000000, 120000000)),
-                  'task5': list(range(120000000, 150000000)),
-                  'task6': list(range(150000000, 180000000)),
-                  'task7': list(range(180000000, 210000000)),
-                  'task8': list(range(210000000, 240000000))}
-    results = [pool.apply_async(train_on_parameter, args=(name, param)) for name, param in param_dict.items()]
-    results = [p.get() for p in results]
-
-    end_t = datetime.datetime.now()
-    elapsed_sec = (end_t - start_t).total_seconds()
-    print("多进程计算 共消耗: " + "{:.2f}".format(elapsed_sec) + " 秒")
+        x_test = pd.concat([test_data.iloc[:, :-10], test_data.iloc[:, 125:127]], axis=1)
+        y_test = test_data.iloc[:, j]
+        RF = RandomForestClassifier(n_estimators=Tree_num, criterion="entropy")
+        RF.fit(x_train, y_train)
+        y_pred = RF.predict(x_test)
+        accuracy = accuracy_score(y_pred, y_test)
+        print(
+            f'A{i}, A{(i + 1) % 4}, A{(i + 2) % 4} as train data, A{(i + 3) % 4} as test data, label = {name_list[j]}, accuracy = {accuracy}')
+        acc_item.append(accuracy)
+    acc_all.append(acc_item)
+acc_mat = np.array(acc_all)
+print(f'{np.average(acc_mat, axis=0)}')

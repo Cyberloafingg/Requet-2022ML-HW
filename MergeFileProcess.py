@@ -9,6 +9,7 @@ Datasets_Folder = "RequetDataSetNew"
 Label_Folder = "LabelDataSet"
 COLS = ['RelativeTime', 'PacketsSent', 'PacketsReceived', 'BytesSent', 'BytesReceived']
 Network_Info_Num = 26 # 一共26个NetworkINFO
+# 已知的文件数量，最为后续处理txt的验证
 Data_Num_In_Folder = {
     'A0':95,
     'A1':130,
@@ -46,7 +47,6 @@ def clean_work_dir():
         dataset_folder = f'{Datasets_Folder}/{datasets}/MERGED_FILES/'
         files = glob.glob(dataset_folder + '*.csv')
         for file in files:
-            # print(file)
             os.remove(file)
 
 def conactenat(combination):

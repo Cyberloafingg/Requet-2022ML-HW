@@ -23,20 +23,20 @@ for i in range(1):
     print(os.path.split(file_name)[1].split('/')[-1][:-17])
     feature_file = 'RequetDataSetNew/' +'A0'+'/PCAP_FILES/' + os.path.split(file_name)[1].split('/')[-1][:-17] + '.pcap'  # yhy's pcap name
     feature_class = chunkdetection.ChunkDetection(feature_file)
-    print(len(feature_class.getFeature(1516209864093)))
-#     lable_size = file.shape[0]
-#     for i in range(0, lable_size, 50):
-#         feature = feature_class.getFeature(file.iloc[i, 0])
-#         if not feature:
-#             continue
-#         feature.append(file_name + "-" + str(file.iloc[i, 0]))
-#         feature.extend(file.iloc[i, 1:])
-#         ans.append(feature)
-# out_file = open('test_data/test_data.csv', 'w', newline='')  # output   be careful of filename
-# writer = csv.writer(out_file)
-# keys = ['label' + str(i) for i in range(120)]
-# keys.extend(['filename_time', 'status', 'BuffWarning', 'Resolution'])
-# writer.writerow(keys)
-# for i in ans:
-#     writer.writerow(i)
-# out_file.close()
+    len(feature_class.getFeature(1516209864093))
+    lable_size = file.shape[0]
+    for i in range(0, lable_size, 50):
+        feature = feature_class.getFeature(file.iloc[i, 0])
+        if not feature:
+            continue
+        feature.append(file_name + "-" + str(file.iloc[i, 0]))
+        feature.extend(file.iloc[i, 1:])
+        ans.append(feature)
+out_file = open('test_data/test_data.csv', 'w', newline='')  # output   be careful of filename
+writer = csv.writer(out_file)
+keys = ['label' + str(i) for i in range(120)]
+keys.extend(['filename_time', 'status', 'BuffWarning', 'Resolution'])
+writer.writerow(keys)
+for i in ans:
+    writer.writerow(i)
+out_file.close()

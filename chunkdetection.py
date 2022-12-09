@@ -1,7 +1,7 @@
 from scapy.all import *
 from math import *
 import pandas as pd
-#from tqdm import tqdm
+from tqdm import tqdm
 import scapy.layers as layers
 
 GET_THRESH = 300  # bytes
@@ -10,8 +10,10 @@ VIDEO_CHUNK_GETSIZE = 700  # bytes
 AUDIO_CHUNK_GETSIZE = 600  # bytes
 IP = layers.inet.IP
 
+
 class Chunk():
-    def __init__(self, start_time=0, server_ip='', ttfb=0, download_time=0, slack_time=0, get_size=0, chunk_size=0, type="", protocol=""):
+    def __init__(self, start_time=0, server_ip='', ttfb=0, download_time=0, slack_time=0, get_size=0, chunk_size=0,
+                 type="", protocol=""):
         self.start_time = start_time
         self.server_ip = server_ip
         self.ttfb = ttfb
@@ -38,12 +40,15 @@ class ChunkDetection():
         self.__meta_time, self.__end_time, chunks = self.__readPcap(filename)
         self.__df_chunks = self.__getDfChunks(chunks)
 
+    def check(self):
+        return self.__df_chunks
+
     def __detectAV(self, c):
-        if abs(c.get_size-VIDEO_CHUNK_GETSIZE) > abs(c.get_size-AUDIO_CHUNK_GETSIZE):
+        if abs(c.get_size - VIDEO_CHUNK_GETSIZE) > abs(c.get_size - AUDIO_CHUNK_GETSIZE):
             flag = 0
         else:
             flag = 1
-        if c.chunk_size <= 80*1024:
+        if c.chunk_size <= 80 * 1024:
             flag = 2
         return flag
 
@@ -61,13 +66,13 @@ class ChunkDetection():
                 ipSrc = p[IP].src
                 ipDst = p[IP].dst
                 pLen = p[IP].len
-                pHdr = p[IP].ihl*4
+                pHdr = p[IP].ihl * 4
                 ip_time = float(p.time)
                 end_time = ip_time
-                if isUplink(p) and pLen-pHdr > GET_THRESH:
+                if isUplink(p) and pLen - pHdr > GET_THRESH:
                     if ipDst in chunk:
                         chunk[ipDst].slack_time = ip_time - \
-                            chunk[ipDst].download_time
+                                                  chunk[ipDst].download_time
                         avFlag = self.__detectAV(chunk[ipDst])
                         if avFlag == 0:
                             # chunk[ipDst].type='a'
@@ -79,7 +84,7 @@ class ChunkDetection():
                             chunk.pop(ipDst)
                             downFlag.pop(ipDst)
                     chunk[ipDst] = Chunk(
-                        start_time=ip_time, get_size=pLen-pHdr, server_ip=ipDst)
+                        start_time=ip_time, get_size=pLen - pHdr, server_ip=ipDst)
                     downFlag[ipDst] = False
                 elif not isUplink(p) and pLen > DOWN_THRESH:
                     if ipSrc in chunk:
@@ -100,6 +105,7 @@ class ChunkDetection():
                 chunks.append(c)
         return meta_time, end_time, chunks
 
+    # 获取七个feature
     def __getDfChunks(self, chunks):
         columns = ['start_time', 'type', 'ttfb',
                    'download_time', 'end_time', 'get_size', 'chunk_size']
@@ -113,25 +119,35 @@ class ChunkDetection():
             get_size = c.get_size
             chunk_size = c.chunk_size
             s = pd.Series([start_time, type, ttfb, download_time, end_time,
-                          get_size, chunk_size], index=columns)
+                           get_size, chunk_size], index=columns)
             df_chunk.loc[len(df_chunk)] = s
 
         av_getsize_gap = df_chunk.get_size.mean()
 
         for i in range(len(df_chunk)):
-            df_chunk.loc[i, 'type'] = 'a' if df_chunk.loc[i,'get_size'] < av_getsize_gap else 'v'
+            df_chunk.loc[i, 'type'] = 'a' if df_chunk.loc[i, 'get_size'] < av_getsize_gap else 'v'
 
         df_chunk.sort_values(by='start_time', inplace=True)
+        # df_chunk.to_csv('results/baseline_Jan17_exp_30.csv', index=False)
+        # print("ok")
         return df_chunk
 
+    # 获取120个label
     def getFeature(self, epoch_msec):
-        t = epoch_msec/1000
+        t = epoch_msec / 1000
         if t < self.__meta_time or t > self.__end_time:
             return None
         s = []
+        # start_time = 0
+        # type = 1
+        # ttfb = 2
+        # download_time = 3
+        # end_time = 4
+        # get_size = 5
+        # chunk_size = 6
         for w in range(1, 21):
-            period = w*10.0
-            if t-period < self.__meta_time:
+            period = w * 10.0
+            if t - period < self.__meta_time:
                 total_number_of_chunks_v = -1
                 avg_chunk_size_v = -1
                 download_time_v = -1
@@ -140,29 +156,46 @@ class ChunkDetection():
                 download_time_a = -1
             else:
                 total_number_of_chunks_v = self.__df_chunks[(self.__df_chunks['type'] == 'v') & (
-                    self.__df_chunks['end_time'] > t-period) & (self.__df_chunks['start_time'] < t)].shape[0]
+                        self.__df_chunks['end_time'] > t - period) & (self.__df_chunks['start_time'] < t)].shape[0]
 
                 if total_number_of_chunks_v == 0:
                     avg_chunk_size_v = 0
                 else:
                     avg_chunk_size_v = self.__df_chunks[(self.__df_chunks['type'] == 'v') & (
-                        self.__df_chunks['end_time'] > t-period) & (self.__df_chunks['start_time'] < t)]['chunk_size'].mean()
+                        self.__df_chunks['end_time'] > t - period) & (self.__df_chunks['start_time'] < t)][
+                        'chunk_size'].mean()
 
                 download_time_v = self.__df_chunks[(self.__df_chunks['type'] == 'v') & (
-                    self.__df_chunks['end_time'] > t-period) & (self.__df_chunks['start_time'] < t)]['download_time'].sum()
+                        self.__df_chunks['end_time'] > t - period) & (self.__df_chunks['start_time'] < t)][
+                    'download_time'].sum()
 
                 total_number_of_chunks_a = self.__df_chunks[(self.__df_chunks['type'] == 'a') & (
-                    self.__df_chunks['end_time'] > t-period) & (self.__df_chunks['start_time'] < t)].shape[0]
+                        self.__df_chunks['end_time'] > t - period) & (self.__df_chunks['start_time'] < t)].shape[0]
 
                 if total_number_of_chunks_a == 0:
                     avg_chunk_size_a = 0
                 else:
                     avg_chunk_size_a = self.__df_chunks[(self.__df_chunks['type'] == 'a') & (
-                        self.__df_chunks['end_time'] > t-period) & (self.__df_chunks['start_time'] < t)]['chunk_size'].mean()
+                        self.__df_chunks['end_time'] > t - period) & (self.__df_chunks['start_time'] < t)][
+                        'chunk_size'].mean()
 
                 download_time_a = self.__df_chunks[(self.__df_chunks['type'] == 'a') & (
-                    self.__df_chunks['end_time'] > t-period) & (self.__df_chunks['start_time'] < t)]['download_time'].sum()
+                        self.__df_chunks['end_time'] > t - period) & (self.__df_chunks['start_time'] < t)][
+                    'download_time'].sum()
 
             s += [total_number_of_chunks_v, avg_chunk_size_v, download_time_v,
                   total_number_of_chunks_a, avg_chunk_size_a, download_time_a]
+        # TODO
+        # s += [离t最近的chunk，chunk的feature]
+        # v_array = self.__df_chunks[(self.__df_chunks['type'] == 'v') & (
+        #         self.__df_chunks['end_time'] > t - period) & (self.__df_chunks['start_time'] < t)]
+        # v_len = len(v_array)
+        # s += v_array.loc(len - 1)
+            print("####")
+            print(total_number_of_chunks_v)
+            print(avg_chunk_size_v)
+            print(download_time_v)
+            print("####")
         return s
+
+
