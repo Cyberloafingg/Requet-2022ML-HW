@@ -14,3 +14,6 @@
    ```
    python -u "./main.py"
    ```
+
+## 结果
+![这是图片](/img/1.png "Magic Gardens")
