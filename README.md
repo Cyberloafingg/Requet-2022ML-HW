@@ -16,4 +16,4 @@
    ```
 
 ## 结果
-![这是图片](/img/1.png "Magic Gardens")
+![这是图片](https://github.com/Cyberloafingg/Requet-2022ML-HW/blob/main/IMG/1.png)
