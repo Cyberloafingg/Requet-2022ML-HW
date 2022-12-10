@@ -16,4 +16,8 @@
    ```
 
 ## 结果
+<<<<<<< HEAD
 ![这是图片](https://github.com/Cyberloafingg/Requet-2022ML-HW/blob/main/IMG/1.png)
+=======
+![这是图片](https://github.com/Cyberloafingg/Requet-2022ML-HW/blob/main/IMG/1.png "Magic Gardens")
+>>>>>>> 056db5c7a954d6b3eeef56131b14b56354b1bc72

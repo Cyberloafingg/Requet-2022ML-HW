@@ -63,7 +63,7 @@ for i in range(4):
             else:
                 reso_pre += precision
                 reso_rec += recall
-        print(f'\rA{i}, A{(i+1)%4}, A{(i+2)%4} as train data, A{(i+3)%4} as test data, label = {label_list[j]}, accuracy = {accuracy}',end='')
+        print(f'A{i},A{(i+1)%4},A{(i+2)%4} as train data, A{(i+3)%4} as test data, label = {label_list[j]},accuracy = {round(accuracy,2)}')
         acc_item.append(accuracy)
     acc_all.append(acc_item)
 acc_mat = np.array(acc_all)
