@@ -27,7 +27,7 @@ it = 0
 
 # smooth 函数
 def smooth_status(status_, m_t):
-    smooth = status_.copy()
+    smooth = status_
     n_idx = 0
     # 1.情况1 STALL是否不连续
     while n_idx < len(smooth):
@@ -45,7 +45,7 @@ def smooth_status(status_, m_t):
                 n_idx = n_idx + 1
         else:
             n_idx = n_idx + 1
-    # 2.
+    # 2.其他不连续情况
     n_idx = 0
     while n_idx < len(smooth):
         if smooth[n_idx] == 1:
@@ -63,15 +63,15 @@ def smooth_status(status_, m_t):
         else:
             n_idx = n_idx + 1
 
-    num = [0 for _ in range(len(smooth))]
-    num[0] = 1
+    rec_smooth = [0 for _ in range(len(smooth))]
+    rec_smooth[0] = 1
     for n_idx in range(1, len(smooth)):
         if smooth[n_idx] == 1:
             if smooth[n_idx - 1] == 1:
-                num[n_idx] = num[n_idx - 1] + 1
+                rec_smooth[n_idx] = rec_smooth[n_idx - 1] + 1
             else:
-                num[n_idx] = 1
-                if num[n_idx - 1] <= THR_SS * 10:
+                rec_smooth[n_idx] = 1
+                if rec_smooth[n_idx - 1] <= THR_SS * 10:
                     for j in range(n_idx - 1, -1, -1):
                         if smooth[j] == 1:
                             smooth[j] = 3 if m_t[j] >= 0 else 2

@@ -49,7 +49,7 @@ def clean_work_dir():
         for file in files:
             os.remove(file)
 
-def conactenat(combination):
+def read_mergefile(combination):
     file , dataset =  combination
     COLS_file_name = f"cols.txt"
     csv_filename = f"{Label_Folder}/{dataset}/{os.path.split(file)[1]}".split('.')[0] + ".csv"
@@ -66,8 +66,8 @@ def conactenat(combination):
     cols_file.close()
 
 
-
-def generate_label_file():
+# 生成csv文件
+def generate_csv_file():
     with open("cols.txt", "w") as text_file:
         text_file.write(",".join(COLS)+"\n")
     for datasets in Dataset_List:
@@ -83,7 +83,7 @@ def generate_label_file():
         for i in files:
             combination.append((i,datasets))
         with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
-            executor.map(conactenat, combination)
+            executor.map(read_mergefile, combination)
     print("****** Mergefile to csv Succeed! *******")
 
 
@@ -93,6 +93,6 @@ if __name__ == '__main__':
     start = time.time()
     clean_work_dir()
     construct_columns()
-    generate_label_file()
+    generate_csv_file()
     end = time.time()
     print(f"Mergefile Process Use {end - start}s")

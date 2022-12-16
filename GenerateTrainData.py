@@ -176,7 +176,7 @@ def ChunkDetection(filename):
 
     return chunkNum, chunksValue, first_end_time
 
-
+# 获取ChunkMetrics
 def getChunkMetrics(chunkNum, chunksValue):
     sortChunks = sorted(chunksValue)
     # 顺序：'start_time', 'type', 'ttfb', 'download_time', 'end_time', 'get_size', 'chunk_size'
@@ -195,7 +195,7 @@ def getChunkMetrics(chunkNum, chunksValue):
     return output_data
 
 
-
+# 从chunk中提取feature
 def getFeature(epoch_msec, cm, first_end_time):
     t = epoch_msec / 1000
     if t < first_end_time[0] or t > first_end_time[1]:
